@@ -8,8 +8,7 @@ class AgregarProductoView extends StatelessWidget {
   final TextEditingController idcontroller = TextEditingController();
   final TextEditingController nombrecontroller = TextEditingController();
   final TextEditingController preciocontroller = TextEditingController();
-  final AgregarProductosController agregarProductosController =
-      AgregarProductosController();
+  final AgregarProductosController agregarProductosController = AgregarProductosController();
   final _formKey = GlobalKey<FormState>();
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
@@ -20,7 +19,7 @@ class AgregarProductoView extends StatelessWidget {
       appBar: AppBar(title: const Text('Agregar producto')),
       body: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(
-          horizontal: 20,
+          horizontal: 30,
           vertical: 30,
         ),
         child: Form(
@@ -29,9 +28,6 @@ class AgregarProductoView extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const Text('ID'),
-              const SizedBox(
-                height: 10,
-              ),
               TextFormField(
                 controller: idcontroller,
                 decoration: const InputDecoration(),
@@ -43,12 +39,9 @@ class AgregarProductoView extends StatelessWidget {
                 },
               ),
               const SizedBox(
-                height: 10,
+                height:10,
               ),
               const Text('Nombre'),
-              const SizedBox(
-                height: 10,
-              ),
               TextFormField(
                 controller: nombrecontroller,
                 decoration: const InputDecoration(),
@@ -63,9 +56,7 @@ class AgregarProductoView extends StatelessWidget {
                 height: 10,
               ),
               const Text('Precio'),
-              const SizedBox(
-                height: 10,
-              ),
+              //formrequest agregar para validar los datos
               TextFormField(
                 controller: preciocontroller,
                 decoration: const InputDecoration(),
@@ -104,13 +95,13 @@ class AgregarProductoView extends StatelessWidget {
         const SnackBar(content: Text('El producto ya existe')),
       );
     }
-    Navigator.pop(context);
   }
 },
                   child: const Text(
                     'Agregar Producto',
                   ),
                 ),
+
               ),
             ],
           ),

@@ -1,6 +1,8 @@
+import 'package:flutter_application_3/Models/Modelo.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
 class AgregarProductosController {
+   Map<String, int> stocks = {};
   bool agregarProducto({
     required String id,
     required String nombre,
@@ -27,9 +29,14 @@ class AgregarProductosController {
         'precio': precio,
       },
     );
-
+    stocks[id] = 0;
     // Devuelve true para indicar que el producto se agregó con éxito
     return true;
   }
 }
+
+ void actualizarStock(String id, int nuevoStock) {
+    // Actualiza el stock del producto en el mapa stocks
+    stocks[id] = nuevoStock;
+  }
 }

@@ -5,6 +5,7 @@ import 'package:flutter_application_3/Controllers/carrito.dart';
 import 'package:flutter_application_3/Models/Modelo.dart';
 import 'package:flutter_application_3/Vista/AgregarProductos.dart';
 import 'package:flutter_application_3/Vista/AlmacenView.dart';
+import 'package:flutter_application_3/Vista/Inicio.dart';
 import 'package:flutter_application_3/Vista/SaludosView.dart';
 // ignore: depend_on_referenced_packages
 import 'package:hive/hive.dart';
@@ -12,21 +13,6 @@ import 'package:hive/hive.dart';
 // ignore: must_be_immutable
 class HomeView extends StatefulWidget {
   List<Producto> productos = [
-    Producto(
-      id: '1',
-      nombre: 'Coca-cola',
-      precio: 1.5,
-    ),
-    Producto(
-      id: '2',
-      nombre: 'Fanta',
-      precio: 1.5,
-    ),
-    Producto(
-      id: '3',
-      nombre: 'Sprite',
-      precio: 1.5,
-    ),
   ];
   HomeView({Key? key}) : super(key: key);
 
@@ -37,8 +23,7 @@ class HomeView extends StatefulWidget {
 
 class _HomeViewState extends State<HomeView> {
   final TextEditingController idController = TextEditingController();
-  final CarritoController carritoController =
-      CarritoController(VerProductosController());
+  final CarritoController carritoController = CarritoController();
   final VerProductosController verProductosController =
       VerProductosController();
   Producto? productoBuscado;
@@ -69,16 +54,14 @@ class _HomeViewState extends State<HomeView> {
                   context,
                   MaterialPageRoute(
                     builder: (context) {
-                      return VerProductosView(
-                        productos: widget.productos,
-                      );
+                      return  VerProductosView(stockss: verProductosController);
                     },
                   ),
                 );
               },
             ),
             ListTile(
-              title: const Text('Añadir Producto'),
+              title: const Text('Alta de Productos'),
               onTap: () {
                 // Navega a la pantalla de Historial de Ventas
                 Navigator.push(
@@ -97,97 +80,133 @@ class _HomeViewState extends State<HomeView> {
           ],
         ),
       ),
-      body: Padding( 
+      body: Padding(
         padding: const EdgeInsets.all(15.0),
+        child: SingleChildScrollView(
         child: Column(
-        children: [
-          Container(      
-            decoration: BoxDecoration(
-              color: Colors.lightBlue[50], // Un color de fondo agradable
-              borderRadius: BorderRadius.circular(8.0), // Bordes redondeados
-            ),
-            child: TextField(
-              controller: idController,
-              textAlign: TextAlign.center,
-              decoration: const InputDecoration(
-                labelText: 'Buscar producto por ID',
+          children: [
+            Container(
+              decoration: BoxDecoration(
+                color: Colors.lightBlue[50], // Un color de fondo agradable
+                borderRadius: BorderRadius.circular(8.0), // Bordes redondeados
+              ),
+              child: TextField(
+                controller: idController,
+                textAlign: TextAlign.center,
+                decoration: const InputDecoration(
+                  labelText: 'Buscar producto por ID',
+                ),
               ),
             ),
-          ),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              primary: Colors.blue,
-              onPrimary: Colors.white,
-              
+            const SizedBox(
+              height: 25,
             ),
-            child: const Text('Buscar'),
-            onPressed: () async {
-              var box = await Hive.openBox('productos');
-              var productoMap = box.get(idController.text);
-              if (productoMap != null) {
-                var producto =
-                    Producto.fromMap(productoMap.cast<String, dynamic>());
-                setState(() {
-                  productoBuscado = producto;
-                });
-              }
-            },
-          ),
-          if (productoBuscado != null)
-            ListTile(
-              leading: CircleAvatar(
-                child: Text(productoBuscado!.id),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                primary: Colors.blue,
+                onPrimary: Colors.white,
               ),
-              title: Text(productoBuscado!.nombre),
-              subtitle: Text(productoBuscado!.precio.toString()),
+              child: const Text('Buscar'),
+              onPressed: () async {
+                if (idController.text.isEmpty) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Por favor, ingrese un ID')),
+                  );
+                  return;
+                }
+                var box = await Hive.openBox('productos');
+                var productoMap = box.get(idController.text);
+                if (productoMap != null) {
+                  var producto =
+                      Producto.fromMap(productoMap.cast<String, dynamic>());
+                  setState(() {
+                    productoBuscado = producto;
+                  });
+                }
+              },
             ),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              
-              //color de fondo 
-              primary: Colors.blue,
-              //color del texto
-              onPrimary: Colors.white,
-              //tamaño del boton
-              padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 13),
-              //tamaño del borde
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25)),
-              //sombra
-              elevation: 5,
+            if (productoBuscado != null)
+              ListTile(
+                leading: CircleAvatar(
+                  child: Text(productoBuscado!.id),
+                ),
+                title: Text(productoBuscado!.nombre),
+                subtitle: Text(productoBuscado!.precio.toString()),
+              ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                primary: Colors.blue,
+                onPrimary: Colors.white,
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 100, vertical: 13),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(18)),
+                elevation: 5,
+              ),
+              child: const Text('Agregar al carrito'),
+              onPressed: () {
+                if (productoBuscado == null) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                        content: Text('Por favor, Ingrese el ID del producto')),
+                  );
+                  return;
+                }
+                var carritoBox = Hive.box('carrito');
+                carritoBox.put(
+                    productoBuscado!.id, productoBuscado!.toMapcarrito());
+              },
             ),
-            child: const Text('Agregar al carrito'),
-            onPressed: () {
-              carritoController.agregarProductoAlCarrito(productoBuscado!);
-            },
-          ),
+            const SizedBox(height: 5),
+            ElevatedButton(
+              child: const Text('Test Hive'),
+              onPressed: () {
+                verProductosController.imprimirProductos();
+              },
+            ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                //color de fondo
+                primary: Colors.blue,
+                //color del texto
+                onPrimary: Colors.white,
+                //tamaño del boton
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 100, vertical: 15),
+                //tamaño del borde
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(25)),
+                //sombra
+                elevation: 5,
+              ),
+              child: const Text('Ver carrito'),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => SaludosView(
+                        carritoController: carritoController,
+                        carritoBox: Hive.box('carrito')),
+                  ),
+                );
+              },
+            ),
+            IconButton(
+              icon: const Icon(Icons.home),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => Inicio(),
+                  ),
+                );
+              },
+            ),
+          ],
+        ),
+      ),
+      ),
+    );
 
-          const SizedBox(height:5),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
-             //color de fondo 
-              primary: Colors.blue,
-              //color del texto
-              onPrimary: Colors.white,
-              //tamaño del boton
-              padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
-              //tamaño del borde
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25)),
-              //sombra
-              elevation: 5,
-            ),
-            child: const Text('Ver carrito'),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (context) =>
-                        SaludosView(carritoController: carritoController)),
-              );
-            },
-          ),
-        ],
-      ),
-      ),
-      );
-    }
+  }
 }
